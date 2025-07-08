@@ -1,0 +1,119 @@
+---
+title: "analysis"
+---
+
+First we load the packages:
+
+```{r, echo = FALSE}
+#| output: false
+library(babynames)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(pheatmap)
+
+#echo = FALSE : only the output are shown, not the code
+#|# output: false : the output are not shown
+```
+
+The table below display the first 10 rows of babynames:
+
+```{r}
+head(babynames) |> kable()
+
+```
+
+To visualize the most popular baby names, two functions were created (get_most_frequent() and plot_top())
+
+```{r}
+#| code-fold: true
+get_most_frequent <- function(babynames, select_sex, from = 1950) {
+  most_freq <- babynames |>
+    filter(sex == select_sex, year > from) |>
+    group_by(name) |>
+    summarise(average = mean(prop)) |>
+    arrange(desc(average))
+    
+  return(list(
+    babynames = babynames,
+    most_frequent = most_freq,
+    sex = select_sex,
+    from = from))
+}
+
+plot_top <- function(x, top = 10) {
+  topx <- x$most_frequent$name[1:top]
+  
+  p <- x$babynames |>
+    filter(name %in% topx, sex == x$sex, year > x$from) |>
+    ggplot(aes(x = year, y = prop, color = name)) +
+    geom_line() +
+    scale_color_brewer(palette = "Paired") +
+    theme_classic()
+  
+  return(p)
+}
+```
+
+We used these functions to visualize the 10 most frequent girl names from 1950 onwards:
+
+```{r}
+#| label: fig-line-girls
+#| fig-cap: "Line plot displaying proportion of top 10 girl names by year"
+get_most_frequent(babynames, select_sex = "F") |>
+  plot_top()
+```
+
+In @fig-line-girls you can see that there has been a peak in popularity for 'Lisa', 'Jennifer' and 'Jessica'. Interesting! Let's have a look at the boys names:
+
+```{r}
+#| label: fig-line-boys
+#| fig-cap: "Line plot displaying proportion of top 10 boy names by year"
+get_most_frequent(babynames, select_sex = "M") |>
+  plot_top()
+```
+
+## @fig-line-boys shows that names that were popular before 1990 are relatively infrequent after 2000.
+
+Test branch
+
+```{r}
+#| label: fig-line-2010
+#| layout: [[50,50], [100]]
+#| fig-cap: "Most popular girl names from 2010 onwards"
+#| fig-subcap: 
+#|   - "Top 5"
+#|   - "Top 10"
+#|   - "Top 30"
+
+# get most frequent girl names from 2010 onwards
+from_year <- 2010
+most_freq_girls <- get_most_frequent(babynames, select_sex = "F",
+                                     from = from_year)
+
+# plot top 5 girl names
+most_freq_girls |>
+  plot_top(top = 5)
+
+# plot top 10 girl names
+most_freq_girls |>
+  plot_top(top = 10)
+
+# get top 30 girl names in a matrix
+# with names in rows and years in columns
+prop_df <- babynames |> 
+  filter(name %in% most_freq_girls$most_frequent$name[1:30] & sex == "F") |>
+  filter(year >= from_year) |> 
+  select(year, name, prop) |>
+  pivot_wider(names_from = year,
+              values_from = prop)
+
+prop_mat <- as.matrix(prop_df[, 2:ncol(prop_df)])
+rownames(prop_mat) <- prop_df$name
+
+# create heatmap
+pheatmap(prop_mat, cluster_cols = FALSE, scale = "row")
+```
+
+In @fig-line-2010-1 and @fig-line-2010-1 the line plots are shown. To view trends of many names at once, @fig-line-2010-3 displays a heatmap.

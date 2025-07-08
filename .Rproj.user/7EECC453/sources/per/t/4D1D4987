@@ -1,0 +1,31 @@
+{
+    "id": "4D1D4987",
+    "path": "~/20250807_SIB/myrepo/analysis.qmd",
+    "project_path": "myrepo/analysis.qmd",
+    "type": "quarto_markdown",
+    "hash": "52943230",
+    "contents": "",
+    "dirty": false,
+    "created": 1751978287623.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "rmdVisualMode": "true",
+        "rmdVisualWrapConfigured": "true",
+        "source_window_id": "",
+        "Source": "Source",
+        "docOutlineVisible": "1",
+        "rmdVisualCollapsedChunks": "",
+        "rmdVisualModeLocation": "2243:1422.54541015625",
+        "cursorPosition": "80,0",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1751978626,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1751978626532,
+    "read_only": false,
+    "read_only_alternatives": []
+}
