@@ -20,3 +20,4 @@ Plot the yearly trend of the top 10 baby names
 #https://search.creativecommons.org/
 #go to figure -> HTML to have proper credits  
 ```
+[![DOI](https://zenodo.org/badge/657627364.svg)](https://zenodo.org/badge/latestdoi/657627364)
