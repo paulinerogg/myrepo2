@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "20250807_SIB",
+    "section": "",
+    "text": "In this project we aim to visualize the trends of the most frequently used babynames from 1880 to 2017 in the United States. We do this by:\n\nUnderstanding the different columns of the data set\nFind the top 10 most frequently used baby names in the data for:\n\ngirls\nboys\n\n\nPlot the yearly trend of the top 10 baby names"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "analysis.html",
+    "href": "analysis.html",
+    "title": "analysis",
+    "section": "",
+    "text": "First we load the packages:\nlibrary(babynames)\nlibrary(knitr)\nlibrary(dplyr)\nlibrary(ggplot2)\nlibrary(tidyr)\nlibrary(pheatmap)\nThe table below display the first 10 rows of babynames:\nhead(babynames) |&gt; kable()\n\n\n\n\nyear\nsex\nname\nn\nprop\n\n\n\n\n1880\nF\nMary\n7065\n0.0723836\n\n\n1880\nF\nAnna\n2604\n0.0266790\n\n\n1880\nF\nEmma\n2003\n0.0205215\n\n\n1880\nF\nElizabeth\n1939\n0.0198658\n\n\n1880\nF\nMinnie\n1746\n0.0178884\n\n\n1880\nF\nMargaret\n1578\n0.0161672\nTo visualize the most popular baby names, two functions were created (get_most_frequent() and plot_top())\nCode\nget_most_frequent &lt;- function(babynames, select_sex, from = 1950) {\n  most_freq &lt;- babynames |&gt;\n    filter(sex == select_sex, year &gt; from) |&gt;\n    group_by(name) |&gt;\n    summarise(average = mean(prop)) |&gt;\n    arrange(desc(average))\n    \n  return(list(\n    babynames = babynames,\n    most_frequent = most_freq,\n    sex = select_sex,\n    from = from))\n}\n\nplot_top &lt;- function(x, top = 10) {\n  topx &lt;- x$most_frequent$name[1:top]\n  \n  p &lt;- x$babynames |&gt;\n    filter(name %in% topx, sex == x$sex, year &gt; x$from) |&gt;\n    ggplot(aes(x = year, y = prop, color = name)) +\n    geom_line() +\n    scale_color_brewer(palette = \"Paired\") +\n    theme_classic()\n  \n  return(p)\n}\nWe used these functions to visualize the 10 most frequent girl names from 1950 onwards:\nget_most_frequent(babynames, select_sex = \"F\") |&gt;\n  plot_top()\n\n\n\n\n\n\n\nFigure 1: Line plot displaying proportion of top 10 girl names by year\nIn Figure 1 you can see that there has been a peak in popularity for ‘Lisa’, ‘Jennifer’ and ‘Jessica’. Interesting! Let’s have a look at the boys names:\nget_most_frequent(babynames, select_sex = \"M\") |&gt;\n  plot_top()\n\n\n\n\n\n\n\nFigure 2: Line plot displaying proportion of top 10 boy names by year"
+  },
+  {
+    "objectID": "analysis.html#fig-line-boys-shows-that-names-that-were-popular-before-1990-are-relatively-infrequent-after-2000.",
+    "href": "analysis.html#fig-line-boys-shows-that-names-that-were-popular-before-1990-are-relatively-infrequent-after-2000.",
+    "title": "analysis",
+    "section": "Figure 2 shows that names that were popular before 1990 are relatively infrequent after 2000.",
+    "text": "Figure 2 shows that names that were popular before 1990 are relatively infrequent after 2000."
+  },
+  {
+    "objectID": "interactive_compute.html",
+    "href": "interactive_compute.html",
+    "title": "Interactive work without a server with web assembly",
+    "section": "",
+    "text": "#| output: false\n#| echo: FALSE\n#| edit: false\n#| autorun: true\nlibrary(babynames)\nlibrary(ggplot2)\nlibrary(magrittr)\nlibrary(dplyr)\n\nHistogram interacting with a javascript Observable input component:\n\nviewof sex_box = Inputs.checkbox(\n  [\"M\", \"F\"],\n  {\n    value: [\"M\", \"F\"],\n    label: \"Shown sexes:\",\n  }\n)\n\n\n\n\n\n\n\n#| echo: FALSE\n#| edit: false\n#| autorun: true\n#| input:\n#|   - sex_box\n\nnbins = 100\ndata = babynames %&gt;% filter( sex %in% sex_box  )\n\nggplot( data , aes(x=n , fill = sex) ) + geom_histogram(bins = nbins) + scale_x_log10()\n\n\n#| echo: false\n#| edit: false\n#| autorun: true\n\nget_most_frequent &lt;- function(babynames, select_sex, from = 1950) {\n  most_freq &lt;- babynames |&gt;\n    filter(sex == select_sex, year &gt; from) |&gt;\n    group_by(name) |&gt;\n    summarise(average = mean(prop)) |&gt;\n    arrange(desc(average))\n    \n  return(list(\n    babynames = babynames,\n    most_frequent = most_freq,\n    sex = select_sex,\n    from = from))\n}\n\nplot_top &lt;- function(x, top = 10) {\n  topx &lt;- x$most_frequent$name[1:top]\n  \n  p &lt;- x$babynames |&gt;\n    filter(name %in% topx, sex == x$sex, year &gt; x$from) |&gt;\n    ggplot(aes(x = year, y = prop, color = name)) +\n    geom_line() +\n    scale_color_brewer(palette = \"Paired\") +\n    theme_classic()\n  \n  return(p)\n}\n\nA more complex examples with more interactive inputs (NB: it seems that when moving the slider the image get re-computed for each intermediate value, leading to some slowness sometimes) :\n\n#| echo: FALSE\n#| edit: false\n#| autorun: true\n#| input:\n#|   - sex_show\n#|   - year\n#|   - n_names\n\nget_most_frequent(babynames, select_sex = sex_show , from = year ) |&gt;\n  plot_top(top=n_names)\n\n\n\nviewof sex_show = Inputs.radio([\"M\", \"F\"], {label: \"Sex:\",value:\"F\"})\n\nviewof year = Inputs.range([1880, 2010], {step: 10, label: \"starting year:\"})\n\nviewof n_names = Inputs.range([1, 12], {step: 1, label: \"number of top names:\"})\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfor (x in 1:5) {\n  print(x ** 2)\n}"
+  }
+]
